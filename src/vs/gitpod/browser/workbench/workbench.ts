@@ -13,7 +13,7 @@ import { CancellationToken } from 'vs/base/common/cancellation';
 import { parse } from 'vs/base/common/marshalling';
 import { Emitter, Event } from 'vs/base/common/event';
 import { Disposable, DisposableStore, IDisposable } from 'vs/base/common/lifecycle';
-import { Schemas } from 'vs/base/common/network';
+import { FileAccess, Schemas } from 'vs/base/common/network';
 import { isEqual } from 'vs/base/common/resources';
 import { URI, UriComponents } from 'vs/base/common/uri';
 import { request } from 'vs/base/parts/request/browser/request';
@@ -568,9 +568,9 @@ async function doStart(): Promise<IDisposable> {
 
 	const remoteAuthority = window.location.host;
 
-	const wsHostPrefix = !devMode ? info.workspaceId : remoteAuthority.substr(0, remoteAuthority.indexOf('.'));
-	const webEndpointUrlTemplate = `https://{{uuid}}.${info.workspaceClusterHost}/${wsHostPrefix}/static`;
-	const webviewEndpoint = `https://{{uuid}}.${info.workspaceClusterHost}/${wsHostPrefix}/static/out/vs/workbench/contrib/webview/browser/pre/`;
+	const baseUri = FileAccess.asBrowserUri('', require);
+	const webEndpointUrlTemplate = baseUri.toString(true).replace('blobserve', '{{uuid}}').replace(/\/out\/$/, '');
+	const webviewEndpoint = baseUri.toString(true).replace('blobserve', '{{uuid}}').replace(/\/out\/$/, '') + '/out/vs/workbench/contrib/webview/browser/pre/';
 
 	const folderUri = info.workspaceLocationFolder
 		? URI.from({
