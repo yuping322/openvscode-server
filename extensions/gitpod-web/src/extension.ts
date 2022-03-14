@@ -24,13 +24,22 @@ import * as vscode from 'vscode';
 import { ThrottledDelayer } from './util/async';
 import { download } from './util/download';
 import { getManifest } from './util/extensionManagmentUtill';
+import { registerExportLogsCommand } from './exportLogsCommand';
 
 let gitpodContext: GitpodExtensionContext | undefined;
 export async function activate(context: vscode.ExtensionContext) {
-	gitpodContext = await setupGitpodContext(context);
+	try {
+		gitpodContext = await setupGitpodContext(context);
+	} catch (error) {
+		console.log(`error creating gitpod context: ${error}`);
+	}
+
+	registerExportLogsCommand(context);
+
 	if (!gitpodContext) {
 		return;
 	}
+
 	registerDesktop(gitpodContext);
 	registerAuth(gitpodContext);
 	registerPorts(gitpodContext);

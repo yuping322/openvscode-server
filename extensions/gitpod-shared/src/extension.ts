@@ -14,18 +14,14 @@ export async function setupGitpodContext(context: vscode.ExtensionContext): Prom
 	}
 
 	const gitpodContext = await createGitpodExtensionContext(context);
+	vscode.commands.executeCommand('setContext', 'gitpod.inWorkspace', !!gitpodContext);
+
 	if (!gitpodContext) {
-		vscode.commands.executeCommand('setContext', 'gitpod.inWorkspace', false);
 		return undefined;
 	}
-	vscode.commands.executeCommand('setContext', 'gitpod.inWorkspace', true);
 
 	vscode.commands.executeCommand('setContext', 'gitpod.ideAlias', gitpodContext.info.getIdeAlias());
-	if (vscode.env.uiKind === vscode.UIKind.Web) {
-		vscode.commands.executeCommand('setContext', 'gitpod.UIKind', 'web');
-	} else if (vscode.env.uiKind === vscode.UIKind.Desktop) {
-		vscode.commands.executeCommand('setContext', 'gitpod.UIKind', 'desktop');
-	}
+	vscode.commands.executeCommand('setContext', 'gitpod.UIKind', vscode.env.uiKind === vscode.UIKind.Web ? 'web' : 'desktop');
 
 	registerUsageAnalytics(gitpodContext);
 	registerWorkspaceCommands(gitpodContext);

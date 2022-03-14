@@ -37,6 +37,10 @@
   "contributes": {
     "commands": [
       {
+        "command": "gitpod.exportLogs",
+        "title": "%exportLogs%"
+      },
+      {
         "command": "gitpod.stop.ws",
         "title": "%stopWorkspace%",
         "enablement": "gitpod.inWorkspace == true && gitpod.workspaceOwned == true"

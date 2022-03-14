@@ -27,5 +27,6 @@
 	"stopSharingWorkspace": "Gitpod: Stop Sharing Running Workspace",
 	"openInStable": "Gitpod: Open in VS Code",
 	"openInInsiders": "Gitpod: Open in VS Code Insiders",
-	"openInBrowser": "Gitpod: Open in Browser"
+	"openInBrowser": "Gitpod: Open in Browser",
+	"exportLogs": "Gitpod: Export logs"
 }
