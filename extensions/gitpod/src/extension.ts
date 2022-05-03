@@ -5,7 +5,7 @@
 import * as vscode from 'vscode';
 import Log from './common/logger';
 import GitpodAuthenticationProvider from './authentication';
-import LocalApp from './localApp';
+import RemoteConnector from './remoteConnector';
 import { enableSettingsSync, updateSyncContext } from './settingsSync';
 import { GitpodServer } from './gitpodServer';
 import TelemetryReporter from './telemetryReporter';
@@ -68,16 +68,16 @@ export async function activate(context: vscode.ExtensionContext) {
 	}));
 
 	const authProvider = new GitpodAuthenticationProvider(context, logger, telemetry);
-	const localApp = new LocalApp(context, logger);
+	const remoteConnector = new RemoteConnector(context, logger);
 	context.subscriptions.push(authProvider);
-	context.subscriptions.push(localApp);
+	context.subscriptions.push(remoteConnector);
 	context.subscriptions.push(vscode.window.registerUriHandler({
 		handleUri(uri: vscode.Uri) {
 			// logger.trace('Handling Uri...', uri.toString());
 			if (uri.path === GitpodServer.AUTH_COMPLETE_PATH) {
 				authProvider.handleUri(uri);
 			} else {
-				localApp.handleUri(uri);
+				remoteConnector.handleUri(uri);
 			}
 		}
 	}));
