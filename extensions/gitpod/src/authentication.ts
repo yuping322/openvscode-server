@@ -56,9 +56,6 @@ export default class GitpodAuthenticationProvider extends Disposable implements 
 		// Contains the current state of the sessions we have available.
 		this._sessionsPromise = this.readSessions();
 
-		// Update telemetry userId
-		this._sessionsPromise.then(sessions => this._telemetry.setUserId(sessions.length ? sessions[0].id : undefined));
-
 		this._register(vscode.authentication.registerAuthenticationProvider('gitpod', 'Gitpod', this, { supportsMultipleAccounts: false }));
 		this._register(this.context.secrets.onDidChange(() => this.checkForUpdates()));
 	}
@@ -109,9 +106,6 @@ export default class GitpodAuthenticationProvider extends Disposable implements 
 		if (added.length || removed.length) {
 			this._sessionChangeEmitter.fire({ added, removed, changed: [] });
 		}
-
-		// Update telemetry userId
-		this._telemetry.setUserId(storedSessions.length ? storedSessions[0].id : undefined);
 	}
 
 	private async readSessions(): Promise<vscode.AuthenticationSession[]> {
@@ -185,9 +179,6 @@ export default class GitpodAuthenticationProvider extends Disposable implements 
 		this._sessionsPromise = Promise.resolve(sessions);
 		await this._keychain.setToken(JSON.stringify(sessions));
 		this._logger.info(`Stored ${sessions.length} sessions!`);
-
-		// Update telemetry userId
-		this._telemetry.setUserId(sessions.length ? sessions[0].id : undefined);
 	}
 
 	public async createSession(scopes: string[]): Promise<vscode.AuthenticationSession> {
