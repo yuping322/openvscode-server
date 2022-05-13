@@ -481,14 +481,6 @@ cookie@^0.4.2:
   resolved "https://registry.yarnpkg.com/cookie/-/cookie-0.4.2.tgz#0e41f24de5ecf317947c82fc789e06a884824432"
   integrity sha512-aSWTXFzaKWkvHO1Ny/s+ePFpvKsPnjc551iI41v3ny/ow6tBG5Vd+FuqGNhh1LxOmVzOlGUriIlOaokOvhaStA==
 
-cpu-features@~0.0.4:
-  version "0.0.4"
-  resolved "https://registry.yarnpkg.com/cpu-features/-/cpu-features-0.0.4.tgz#0023475bb4f4c525869c162e4108099e35bf19d8"
-  integrity sha512-fKiZ/zp1mUwQbnzb9IghXtHtDoTMtNeb8oYGx6kX2SYfhnG0HNdBEBIzB9b5KlXu5DQPhfy3mInbBxFcgwAr3A==
-  dependencies:
-    buildcheck "0.0.3"
-    nan "^2.15.0"
-
 create-error@^0.3.1:
   version "0.3.1"
   resolved "https://registry.yarnpkg.com/create-error/-/create-error-0.3.1.tgz#69810245a629e654432bf04377360003a5351a23"
@@ -771,11 +763,6 @@ ms@^2.0.0:
   resolved "https://registry.yarnpkg.com/ms/-/ms-2.1.3.tgz#574c8138ce1d2b5861f0b44579dbadd60c6615b2"
   integrity sha512-6FlzubTLZG3J2a/NVCAleEhjzq5oxgHyaCU9yYXvcLsvoVaHJq/s5xXI6/XXP6tz7R9xAOtHnSO/tXtF3WRTlA==
 
-nan@^2.15.0:
-  version "2.15.0"
-  resolved "https://registry.yarnpkg.com/nan/-/nan-2.15.0.tgz#3f34a473ff18e15c1b5626b62903b5ad6e665fee"
-  integrity sha512-8ZtvEnA2c5aYCZYd1cvgdnU6cqwixRoYg70xPLWUws5ORTa/lnw+u4amixRS/Ac5U5mQVgp9pnlSUnbNWFaWZQ==
-
 node-addon-api@^3.2.1:
   version "3.2.1"
   resolved "https://registry.yarnpkg.com/node-addon-api/-/node-addon-api-3.2.1.tgz#81325e0a2117789c0128dab65e7e38f07ceba161"
@@ -950,9 +937,6 @@ ssh2@^1.10.0:
   dependencies:
     asn1 "^0.2.4"
     bcrypt-pbkdf "^1.0.2"
-  optionalDependencies:
-    cpu-features "~0.0.4"
-    nan "^2.15.0"
 
 string-template@~0.2.1:
   version "0.2.1"
