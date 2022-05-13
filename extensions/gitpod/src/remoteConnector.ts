@@ -7,6 +7,7 @@ import * as fs from 'fs';
 import * as http from 'http';
 import * as net from 'net';
 import fetch, { Response } from 'node-fetch';
+import { Client as sshClient } from 'ssh2';
 import * as tmp from 'tmp';
 import * as path from 'path';
 import * as vscode from 'vscode';
@@ -69,6 +70,12 @@ class LocalAppError extends Error {
 
 	constructor(message?: string, readonly logPath?: string) {
 		super(message);
+	}
+}
+
+class SSHError extends Error {
+	constructor(readonly cause: Error) {
+		super();
 	}
 }
 
@@ -411,6 +418,8 @@ export default class RemoteConnector extends Disposable {
 			throw new Error('no_ssh_gateway');
 		}
 
+		const sshHostKeys: { type: string, host_key: string }[] = await sshHostKeyResponse.json();
+
 		const ownerToken = await withServerApi(session.accessToken, serviceUrl.toString(), service => service.server.getOwnerToken(workspaceId), this.logger);
 
 		const sshDestInfo = {
@@ -418,6 +427,34 @@ export default class RemoteConnector extends Disposable {
 			// See https://github.com/gitpod-io/gitpod/pull/9786 for reasoning about `.ssh` suffix
 			hostName: workspaceUrl.host.replace(workspaceId, `${workspaceId}.ssh`)
 		};
+
+		// Test ssh connection first
+		await new Promise<void>((resolve, reject) => {
+			const conn = new sshClient();
+			conn.on('ready', () => {
+				conn.end();
+				resolve();
+			}).on('error', err => {
+				reject(new SSHError(err));
+			}).connect({
+				host: sshDestInfo.hostName,
+				username: sshDestInfo.user,
+				authHandler(methodsLeft, _partialSuccess, callback) {
+					if (!methodsLeft) {
+						callback({
+							type: 'password',
+							username: workspaceId,
+							password: ownerToken
+						});
+					} else {
+						callback(false);
+					}
+				},
+				hostVerifier(hashedKey) {
+					return (hashedKey as any as Buffer).toString('base64') === sshHostKeys[0].host_key;
+				}
+			});
+		});
 
 		return Buffer.from(JSON.stringify(sshDestInfo), 'utf8').toString('hex');
 	}
@@ -531,11 +568,16 @@ export default class RemoteConnector extends Disposable {
 		try {
 			sshDestination = await this.getWorkspaceSSHDestination(params.workspaceId, params.gitpodHost);
 		} catch (e) {
-			if (e instanceof Error && e.message === 'no_ssh_gateway') {
-				this.logger.error('SSH gateway not configured for this Gitpod Host', params.gitpodHost);
+			if (e instanceof SSHError) {
+				this.logger.error('SSH test connection error', e.cause);
+				vscode.window.showWarningMessage(`There was an error connecting to ${params.workspaceId} through SSH, connecting via the deprecated SSH tunnel over WebSocket.`);
+				// Do nothing and continue execution
+			} else if (e instanceof Error && e.message === 'no_ssh_gateway') {
+				this.logger.error(`SSH gateway not configured for this Gitpod Host ${params.gitpodHost}`);
+				vscode.window.showWarningMessage(`${params.gitpodHost} does not support [direct SSH access](https://github.com/gitpod-io/gitpod/blob/main/install/installer/docs/workspace-ssh-access.md), connecting via the deprecated SSH tunnel over WebSocket.`);
 				// Do nothing and continue execution
 			} else if (e instanceof Error && e.message === 'no_running_instance') {
-				this.logger.error('No running instance for this workspaceId', params.workspaceId);
+				this.logger.error(`No running instance for this workspaceId ${params.workspaceId}`);
 				vscode.window.showErrorMessage(`Failed to connect to remote workspace: No running instance for '${params.workspaceId}'`);
 				return;
 			} else {
@@ -552,7 +594,6 @@ export default class RemoteConnector extends Disposable {
 		const usingSSHGateway = !!sshDestination;
 		let localAppSSHConfigPath: string | undefined;
 		if (!usingSSHGateway) {
-			vscode.window.showWarningMessage(`${params.gitpodHost} does not support [direct SSH access](https://github.com/gitpod-io/gitpod/blob/main/install/installer/docs/workspace-ssh-access.md), connecting via the deprecated SSH tunnel over WebSocket.`);
 			try {
 				const localAppDestData = await this.getWorkspaceLocalAppSSHDestination(params);
 				sshDestination = localAppDestData.localAppSSHDest;
