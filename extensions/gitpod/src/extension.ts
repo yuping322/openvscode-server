@@ -13,7 +13,9 @@ import { exportLogs } from './exportLogs';
 
 const EXTENSION_ID = 'gitpod.gitpod-desktop';
 const FIRST_INSTALL_KEY = 'gitpod-desktop.firstInstall';
-const ANALITYCS_KEY = 'bUY8IRdJ42KjLOBS9LoIHMYFBD8rSzjU';
+
+// const ANALITYCS_KEY = 'YErmvd89wPsrCuGcVnF2XAl846W9WIGl'; // For development
+const ANALITYCS_KEY = 'bUY8IRdJ42KjLOBS9LoIHMYFBD8rSzjU'; // For release
 
 let telemetry: TelemetryReporter;
 
@@ -68,7 +70,7 @@ export async function activate(context: vscode.ExtensionContext) {
 	}));
 
 	const authProvider = new GitpodAuthenticationProvider(context, logger, telemetry);
-	const remoteConnector = new RemoteConnector(context, logger);
+	const remoteConnector = new RemoteConnector(context, logger, telemetry);
 	context.subscriptions.push(authProvider);
 	context.subscriptions.push(remoteConnector);
 	context.subscriptions.push(vscode.window.registerUriHandler({
