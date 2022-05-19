@@ -458,16 +458,11 @@ export default class RemoteConnector extends Disposable {
 			}).connect({
 				host: sshDestInfo.hostName,
 				username: sshDestInfo.user,
-				authHandler(methodsLeft, _partialSuccess, callback) {
-					if (!methodsLeft) {
-						callback({
-							type: 'password',
-							username: workspaceId,
-							password: ownerToken
-						});
-					} else {
-						callback(false);
-					}
+				authHandler(_methodsLeft, _partialSuccess, _callback) {
+					return {
+						type: 'none',
+						username: sshDestInfo.user,
+					};
 				},
 				hostVerifier(hostKey) {
 					// We didn't specify `hostHash` so `hashedKey` is a Buffer object
