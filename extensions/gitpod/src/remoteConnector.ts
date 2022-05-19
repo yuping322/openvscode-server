@@ -8,7 +8,6 @@ import * as http from 'http';
 import * as net from 'net';
 import fetch, { Response } from 'node-fetch';
 import { Client as sshClient, utils as sshUtils } from 'ssh2';
-import { ParsedKey } from 'ssh2-streams';
 import * as tmp from 'tmp';
 import * as path from 'path';
 import * as vscode from 'vscode';
