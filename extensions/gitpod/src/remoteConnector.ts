@@ -629,9 +629,12 @@ export default class RemoteConnector extends Disposable {
 						this.logger.error(`Failed to connect to ${params.workspaceId} Gitpod workspace`, e);
 					}
 					const seeLogs = 'See Logs';
-					const action = await vscode.window.showErrorMessage(`Failed to connect to ${params.workspaceId} Gitpod workspace`, seeLogs);
+					const showTroubleshooting = 'Show Troubleshooting';
+					const action = await vscode.window.showErrorMessage(`Failed to connect to ${params.workspaceId} Gitpod workspace`, seeLogs, showTroubleshooting);
 					if (action === seeLogs) {
 						this.logger.show();
+					} else if (action === showTroubleshooting) {
+						vscode.env.openExternal(vscode.Uri.parse('https://www.gitpod.io/docs/troubleshooting'));
 					}
 					return;
 				}
@@ -654,13 +657,16 @@ export default class RemoteConnector extends Disposable {
 				if (e instanceof LocalAppError) {
 					this.telemetry.sendTelemetryEvent('vscode_desktop_ssh', { kind: 'local-app', status: 'failed', reason: e.toString() });
 					const seeLogs = 'See Logs';
-					const action = await vscode.window.showErrorMessage(`Failed to connect to ${params.workspaceId} Gitpod workspace`, seeLogs);
+					const showTroubleshooting = 'Show Troubleshooting';
+					const action = await vscode.window.showErrorMessage(`Failed to connect to ${params.workspaceId} Gitpod workspace`, seeLogs, showTroubleshooting);
 					if (action === seeLogs) {
 						this.logger.show();
 						if (e.logPath) {
 							const document = await vscode.workspace.openTextDocument(vscode.Uri.file(e.logPath));
 							vscode.window.showTextDocument(document);
 						}
+					} else if (action === showTroubleshooting) {
+						vscode.env.openExternal(vscode.Uri.parse('https://www.gitpod.io/docs/troubleshooting'));
 					}
 				} else {
 					// Do nothing, user cancelled the operation
